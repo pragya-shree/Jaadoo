@@ -1,0 +1,802 @@
+/* ==========================================================================
+   JAADOO SPACESHIP TERMINAL — Atmospheric Chat Interface
+   ========================================================================== */
+
+:root {
+    --space-bg: #07090e;
+    --space-deep: #05060a;
+    --accent-violet: #8e7ce6;
+    --accent-violet-glow: rgba(142, 124, 230, 0.22);
+    --text-primary: #eef0ea;
+    --text-muted: #8b939e;
+    --text-dim: #4e5663;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(142, 124, 230, 0.45);
+    --human-bg: rgba(255, 255, 255, 0.04);
+    --terminal-font: 'Space Grotesk', system-ui, sans-serif;
+    --body-font: 'DM Sans', system-ui, sans-serif;
+}
+
+/* Base Terminal Scene */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--space-bg);
+    color: var(--text-primary);
+    font-family: var(--body-font);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+/* Atmospheric Ambient Light Layer */
+.terminal-cosmos {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(110, 86, 207, 0.16) 0%, transparent 60%),
+        radial-gradient(circle at 85% 70%, rgba(95, 176, 176, 0.06) 0%, transparent 50%),
+        linear-gradient(180deg, var(--space-bg) 0%, var(--space-deep) 100%);
+}
+
+.terminal-stars {
+    position: absolute;
+    inset: 0;
+}
+
+.star {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.3;
+    animation: starTwinkle var(--d, 3s) ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+
+    0%,
+    100% {
+        opacity: 0.15;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+/* App Container */
+.terminal-viewport {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100svh;
+}
+
+/* Top Minimal Header */
+.terminal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    background: linear-gradient(180deg, rgba(7, 9, 14, 0.85) 0%, transparent 100%);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.terminal-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.quiet-link {
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+}
+
+.quiet-link:hover {
+    color: var(--text-primary);
+}
+
+.terminal-badge {
+    font-family: var(--terminal-font);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.terminal-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #5fb0b0;
+    box-shadow: 0 0 8px #5fb0b0;
+}
+
+.terminal-badge.demo-state .dot {
+    background: #e48a6e;
+    box-shadow: 0 0 8px #e48a6e;
+}
+
+.terminal-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.text-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--body-font);
+    font-size: 0.86rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.text-btn:hover {
+    color: var(--text-primary);
+}
+
+.text-btn span.badge-num {
+    font-family: var(--terminal-font);
+    font-size: 0.72rem;
+    color: var(--accent-violet);
+    margin-left: 2px;
+}
+
+/* Demo Mode Subtle Notice */
+.demo-strip {
+    display: none;
+    background: rgba(228, 138, 110, 0.08);
+    border-bottom: 1px solid rgba(228, 138, 110, 0.2);
+    padding: 6px 20px;
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(238, 240, 234, 0.75);
+    letter-spacing: 0.02em;
+}
+
+.demo-strip.active {
+    display: block;
+}
+
+.demo-strip code {
+    color: #e48a6e;
+    font-size: 0.8rem;
+}
+
+/* Center Conversation Column */
+.conversation-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 0;
+    position: relative;
+    padding: 0 20px;
+}
+
+.conversation-column {
+    width: 100%;
+    max-width: 720px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Jaadoo Observation Window / Porthole */
+.alien-viewport {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0 8px;
+    flex-shrink: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.alien-porthole {
+    position: relative;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    padding: 3px;
+    background: radial-gradient(circle at 35% 30%, rgba(142, 124, 230, 0.35), rgba(7, 9, 14, 0.9));
+    border: 1px solid rgba(142, 124, 230, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(142, 124, 230, 0.15);
+    flex-shrink: 0;
+}
+
+.alien-porthole img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    animation: gentleFloat 6s ease-in-out infinite;
+    cursor: pointer;
+    transition: filter 0.3s ease;
+}
+
+.alien-porthole.thinking img {
+    animation: thoughtPulse 1.8s ease-in-out infinite;
+    filter: brightness(1.15) saturate(1.2);
+}
+
+.alien-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.alien-title {
+    font-family: var(--terminal-font);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alien-status {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+}
+
+.alien-status.thinking-state {
+    color: var(--accent-violet);
+    font-style: italic;
+}
+
+@keyframes gentleFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes thoughtPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: scale(1.04);
+        filter: brightness(1.2) drop-shadow(0 0 10px rgba(142, 124, 230, 0.5));
+    }
+}
+
+/* Messages Stream */
+.messages-stream {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 0 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.messages-stream::-webkit-scrollbar {
+    width: 5px;
+}
+
+.messages-stream::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+}
+
+/* Message Entries */
+.msg-entry {
+    display: flex;
+    flex-direction: column;
+    max-width: 88%;
+    animation: messageFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes messageFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Human Speaker */
+.msg-entry.user {
+    align-self: flex-end;
+    align-items: flex-end;
+}
+
+.msg-entry.user .msg-body {
+    background: var(--human-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px 14px 2px 14px;
+    padding: 12px 18px;
+    color: var(--text-primary);
+    font-size: 0.98rem;
+    line-height: 1.6;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+/* Jaadoo Speaker */
+.msg-entry.assistant {
+    align-self: flex-start;
+    align-items: flex-start;
+}
+
+.msg-entry.assistant .msg-body {
+    background: transparent;
+    border-left: 2px solid var(--accent-violet);
+    padding: 6px 0 6px 18px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.65;
+    word-break: break-word;
+    letter-spacing: 0.005em;
+}
+
+.msg-meta-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+}
+
+.msg-entry.assistant .msg-meta-line {
+    padding-left: 18px;
+}
+
+.fallback-tag {
+    font-family: var(--terminal-font);
+    font-size: 0.68rem;
+    color: #e48a6e;
+    letter-spacing: 0.04em;
+    opacity: 0.8;
+}
+
+/* In-stream Discovery Line */
+.stream-discovery {
+    align-self: center;
+    font-size: 0.8rem;
+    color: var(--accent-violet);
+    padding: 6px 14px;
+    background: rgba(142, 124, 230, 0.07);
+    border-radius: 999px;
+    border: 1px solid rgba(142, 124, 230, 0.18);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.01em;
+}
+
+/* Composer */
+.composer-dock {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, transparent 0%, rgba(7, 9, 14, 0.92) 28%, var(--space-bg) 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 5;
+}
+
+/* Curiosity Prompt Bar */
+.curiosity-line {
+    display: flex;
+    justify-content: center;
+}
+
+.curiosity-toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--body-font);
+    font-size: 0.82rem;
+    cursor: pointer;
+    padding: 4px 10px;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.curiosity-toggle-btn:hover {
+    color: var(--accent-violet);
+}
+
+.curiosity-toggle-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Input Box */
+.composer-box {
+    background: rgba(12, 16, 24, 0.78);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 8px 12px 8px 18px;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.composer-box:focus-within {
+    border-color: var(--border-active);
+    box-shadow: 0 0 24px var(--accent-violet-glow);
+}
+
+.composer-textarea {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    resize: none;
+    max-height: 110px;
+    min-height: 24px;
+    padding: 6px 0;
+    margin: 0;
+    scrollbar-width: none;
+}
+
+.composer-textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.composer-textarea::placeholder {
+    color: var(--text-dim);
+}
+
+.send-trigger {
+    background: none;
+    border: none;
+    color: var(--accent-violet);
+    font-family: var(--terminal-font);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    align-self: flex-end;
+    margin-bottom: 2px;
+}
+
+.send-trigger:hover:not(:disabled) {
+    transform: scale(1.05);
+    color: #fff;
+}
+
+.send-trigger:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.composer-hint {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+}
+
+/* Ship Log Slide-In Drawer */
+.drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 6, 10, 0.7);
+    backdrop-filter: blur(6px);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.drawer-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drawer-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 440px;
+    background: rgba(9, 12, 18, 0.95);
+    border-left: 1px solid var(--border-subtle);
+    backdrop-filter: blur(24px);
+    z-index: 51;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6);
+}
+
+.drawer-panel.open {
+    transform: translateX(0);
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.drawer-title {
+    font-family: var(--terminal-font);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.drawer-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.2s ease;
+}
+
+.drawer-close:hover {
+    color: var(--text-primary);
+}
+
+/* Drawer Tab Switcher */
+.drawer-nav {
+    display: flex;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 16px;
+}
+
+.drawer-tab {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--body-font);
+    font-size: 0.86rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 0;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.drawer-tab:hover {
+    color: var(--text-primary);
+}
+
+.drawer-tab.active {
+    color: var(--accent-violet);
+}
+
+.drawer-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-violet);
+}
+
+.drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+/* Ship Log Items */
+.log-item {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.log-item-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.log-item-title {
+    font-family: var(--terminal-font);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.log-item-tag {
+    font-size: 0.7rem;
+    font-family: var(--terminal-font);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent-violet);
+}
+
+.log-item-body {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.log-item-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+}
+
+.forget-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 2px 0;
+    transition: color 0.2s ease;
+}
+
+.forget-btn:hover {
+    color: #e48a6e;
+}
+
+.drawer-empty {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    padding: 48px 0;
+    font-style: italic;
+}
+
+/* Mobile Adaptations */
+@media (max-width: 640px) {
+    .terminal-header {
+        padding: 14px 16px;
+    }
+
+    .conversation-wrap {
+        padding: 0 14px;
+    }
+
+    .alien-viewport {
+        padding: 10px 0 6px;
+        gap: 12px;
+    }
+
+    .alien-porthole {
+        width: 48px;
+        height: 48px;
+    }
+
+    .alien-title {
+        font-size: 0.95rem;
+    }
+
+    .alien-status {
+        font-size: 0.74rem;
+    }
+
+    .msg-entry {
+        max-width: 95%;
+    }
+
+    .msg-entry.user .msg-body {
+        font-size: 0.92rem;
+        padding: 10px 14px;
+    }
+
+    .msg-entry.assistant .msg-body {
+        font-size: 0.94rem;
+        padding: 4px 0 4px 14px;
+    }
+
+    .composer-hint {
+        display: none;
+    }
+
+    .composer-box {
+        padding: 6px 10px 6px 14px;
+    }
+
+    .drawer-panel {
+        max-width: 100%;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .messages-stream {
+        scroll-behavior: auto;
+    }
+}

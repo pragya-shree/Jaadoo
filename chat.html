@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E👽%3C/text%3E%3C/svg%3E">
+    <title>JAADOO — Spaceship Comm Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/conversations.css">
+</head>
+<body>
+    <!-- Atmospheric Deep Space Background -->
+    <div class="terminal-cosmos" aria-hidden="true">
+        <div class="terminal-stars" id="terminalStars"></div>
+    </div>
+
+    <div class="terminal-viewport">
+        <!-- Minimal Top Nav -->
+        <header class="terminal-header">
+            <div class="terminal-nav-left">
+                <a href="index.html" class="quiet-link" title="Return to Landing Page">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <span>Earth Base</span>
+                </a>
+                <span class="terminal-badge" id="terminalStatusBadge">
+                    <span class="dot"></span>
+                    <span id="terminalStatusText">Orbit Terminal</span>
+                </span>
+            </div>
+
+            <div class="terminal-nav-right">
+                <button class="text-btn" id="openConversationsBtn">
+                    Transmissions
+                </button>
+                <button class="text-btn" id="openLogBtn">
+                    Ship Log <span class="badge-num" id="logBadgeCount"></span>
+                </button>
+                <button class="text-btn" id="openMemoryBtn">
+                    Memory <span class="badge-num" id="memBadgeCount"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Subtle Demo Notification Strip -->
+        <div class="demo-strip" id="demoStrip">
+            <span>Simulated transmission active (Configure <code>GEMINI_API_KEY</code> in <code>.env</code> for live neural link).</span>
+        </div>
+
+        <!-- Center Column Conversation -->
+        <main class="conversation-wrap">
+            <div class="conversation-column">
+                
+                <!-- Jaadoo Observation Porthole -->
+                <div class="alien-viewport" id="alienViewport">
+                    <div class="alien-porthole" id="alienPorthole">
+                        <img id="alienAvatar" src="assets/images/jaadoo-alien.jpg" alt="Jaadoo peering in">
+                    </div>
+                    <div class="alien-meta">
+                        <h1 class="alien-title">JAADOO</h1>
+                        <span class="alien-status" id="alienStatusText">Transceiver listening from Sector 7-G</span>
+                    </div>
+                </div>
+
+                <!-- Messages Thread -->
+                <div class="messages-stream" id="messagesStream">
+                    <!-- Initial Welcome Transmission -->
+                    <div class="msg-entry assistant">
+                        <div class="msg-body">Zorp! Transmission received. My saucer is in high orbit above your quadrant. I have thousands of questions about your species. What do you call yourself, Earthling?</div>
+                        <div class="msg-meta-line">
+                            <span>Sector 7-G Link</span>
+                            <span>•</span>
+                            <span class="msg-time-stamp">Orbit Time</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Floating Composer Dock -->
+                <div class="composer-dock">
+                    <!-- Curiosity Prompt Line -->
+                    <div class="curiosity-line">
+                        <button class="curiosity-toggle-btn" id="curiosityBtn">
+                            ✦ Jaadoo has an unusual question about Earth...
+                        </button>
+                    </div>
+
+                    <!-- Input Box -->
+                    <form class="composer-box" id="composerForm">
+                        <textarea 
+                            class="composer-textarea" 
+                            id="composerInput" 
+                            rows="1" 
+                            placeholder="Transmit a message to Jaadoo..." 
+                            required
+                        ></textarea>
+                        <button type="submit" class="send-trigger" id="sendBtn">Send</button>
+                    </form>
+                    <div class="composer-hint">Enter to send • Shift+Enter for new line</div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Ship Log Drawer Backdrop -->
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+    <!-- Ship Log Slide-In Drawer -->
+    <aside class="drawer-panel" id="drawerPanel" aria-label="Ship Terminal Log">
+        <div class="drawer-header">
+            <h2 class="drawer-title" id="drawerTitle">Ship Terminal Log</h2>
+            <button class="drawer-close" id="drawerCloseBtn" aria-label="Close drawer">✕</button>
+        </div>
+
+        <!-- Tab Switcher -->
+        <nav class="drawer-nav">
+            <button class="drawer-tab active" data-tab="diary">Field Notes</button>
+            <button class="drawer-tab" data-tab="knowledge">Earth Archive</button>
+            <button class="drawer-tab" data-tab="memories">Memory Core</button>
+        </nav>
+
+        <div class="drawer-body" id="drawerBody">
+            <!-- Dynamically populated entries -->
+        </div>
+    </aside>
+
+    <!-- Conversations Sidebar -->
+    <div class="conv-backdrop" id="convBackdrop"></div>
+    <aside class="conv-sidebar" id="convSidebar" aria-label="Previous Transmissions">
+        <div class="conv-sidebar-header">
+            <h2 class="conv-sidebar-title">Transmissions</h2>
+            <button class="drawer-close" id="convCloseBtn" aria-label="Close">✕</button>
+        </div>
+        <div class="conv-sidebar-actions">
+            <button class="conv-new-btn" id="newConversationBtn">+ New Transmission</button>
+        </div>
+        <div class="conv-list" id="convList">
+            <div class="drawer-empty">Loading transmission log...</div>
+        </div>
+    </aside>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-backdrop" id="modalBackdrop">
+        <div class="modal-box" id="modalBox" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <p class="modal-title" id="modalTitle">Delete this transmission?</p>
+            <p class="modal-body">All messages in this conversation will be erased from the ship's memory. This cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="modal-cancel" id="modalCancelBtn">Keep it</button>
+                <button class="modal-confirm" id="modalConfirmBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/chat.js"></script>
+</body>
+</html>
