@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: jaadoo
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    disk:
+      name: jaadoo-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: JAADOO_DB_PATH
+        value: /var/data/jaadoo.db
+      - key: PYTHON_VERSION
+        value: 3.11.0
+

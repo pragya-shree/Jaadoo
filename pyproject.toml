@@ -1,0 +1,31 @@
+[project]
+name = "jaadoo"
+version = "1.0.0"
+description = "JAADOO - Interactive AI Alien Agent"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "pydantic>=2.10.0",
+    "google-genai>=2.10.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.32.0",
+    "httpx>=0.28.0"
+]
+
+[tool.pyrefly]
+python-path = "C:/Users/pragy/AppData/Local/Programs/Python/Python314/python.exe"
+search-paths = [
+    "C:/Users/pragy/AppData/Local/Programs/Python/Python314/Lib/site-packages",
+    "."
+]
+
+[tool.pyright]
+pythonPlatform = "Windows"
+pythonVersion = "3.14"
+pythonPath = "C:/Users/pragy/AppData/Local/Programs/Python/Python314/python.exe"
+extraPaths = [
+    "C:/Users/pragy/AppData/Local/Programs/Python/Python314/Lib/site-packages",
+    "."
+]
+

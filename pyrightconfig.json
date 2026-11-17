@@ -1,0 +1,19 @@
+{
+  "include": [
+    "backend"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".venv"
+  ],
+  "venvPath": ".",
+  "venv": ".venv",
+  "pythonPlatform": "Windows",
+  "pythonVersion": "3.14",
+  "extraPaths": [
+    ".venv/Lib/site-packages",
+    "C:/Users/pragy/AppData/Local/Programs/Python/Python314/Lib/site-packages",
+    "."
+  ]
+}
