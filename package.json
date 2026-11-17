@@ -1,0 +1,9 @@
+{
+  "name": "jaadoo-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JAADOO, an alien visiting Earth: single-page landing site",
+  "scripts": {
+    "start": "npx --yes serve . -l 3000"
+  }
+}
